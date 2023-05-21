@@ -1,20 +1,23 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SwitchColors : MonoBehaviour
+public class AddColor : MonoBehaviour
 {
-	private Vector2 _originalPositionOfDraggedSquare;
+    [SerializeField]
+    private GameObject _squarePrefab;
 
-	private Transform _transform;
+    private Transform _transform;
     private bool _dragging = false;
 
     private Camera _camera;
     private SpriteRenderer _spriteRenderer;
     private RandomColor _randomColor;
 
+    private GameObject _clone;
+    private SpriteRenderer _cloneSpriteRenderer;
+
     private void Start()
     {
-        _transform = transform;
         _camera = Camera.main;
         _spriteRenderer = GetComponent<SpriteRenderer>();
         _randomColor = FindObjectOfType<RandomColor>();
@@ -23,18 +26,27 @@ public class SwitchColors : MonoBehaviour
     // Called when you start holding down LMB on square. 
     public void OnHoldDownLMB()
     {
+        // TODO - Not detecting click, why? It's very similar to the other one which is working fine. 
+      //  Debug.Log("Click detected.");
+
+        // Clone this square so that there's an endless stack of them to grab from. 
+        _clone = Instantiate(_squarePrefab, transform.position, Quaternion.identity, transform.parent);
+        _cloneSpriteRenderer = _clone.GetComponent<SpriteRenderer>();
+        _cloneSpriteRenderer.color = _spriteRenderer.color;
+        _cloneSpriteRenderer.sortingOrder = 3;
+        _transform = _clone.transform;
+        _transform.localScale = new Vector3(_randomColor.SquareSize, _randomColor.SquareSize, 1f);
+
         _dragging = true;
-		_originalPositionOfDraggedSquare = _transform.position;
-        _spriteRenderer.sortingOrder = 10;
     }
 
     public void OnReleaseLMB()
     {
         _dragging = false;
-        _spriteRenderer.sortingOrder = 1;
+        _cloneSpriteRenderer.sortingOrder = 1;
 
         float distance = float.MaxValue;
-        KeyValuePair<Vector2,GameObject> newKVP = new();
+        KeyValuePair<Vector2, GameObject> newKVP = new();
         foreach (KeyValuePair<Vector2, GameObject> kvp in _randomColor.CoordinatesAndSquares)
         {
             if (Vector2.Distance(kvp.Key, _transform.position) < distance)
@@ -44,44 +56,33 @@ public class SwitchColors : MonoBehaviour
             }
         }
 
-        // If the distance is less than a square width from the coordinate...
+        // If you release LMB within
         if (distance < _randomColor.SquareSize)
         {
             // If the nearest coordinate has a square on it... 
             if (newKVP.Value != null)
             {
-                // Move new square to original's position (dictionary is unchanged). 
-                newKVP.Value.transform.position = _originalPositionOfDraggedSquare;
+                // Change that square's color to this square's color.
+                newKVP.Value.GetComponent<SpriteRenderer>().color = _spriteRenderer.color;
 
-                // Change old kvp. 
-                _randomColor.CoordinatesAndSquares[_originalPositionOfDraggedSquare] = newKVP.Value;
-
-                // Move old square to new one's position (dictionary is still unchanged). 
-                _transform.position = newKVP.Key;
-
-                // Change new kvp.
-                _randomColor.CoordinatesAndSquares[newKVP.Key] = _transform.gameObject;
+                // Destroy this square. No need to do anything to the dictionary. 
+                Destroy(_transform.gameObject);
             }
             // Else if the nearest coordinate is empty... 
             else
             {
-                // Change old kvp. 
-                _randomColor.CoordinatesAndSquares[_originalPositionOfDraggedSquare] = null;
-
-                // Move old square to new one's position (dictionary is unchanged). 
-                _transform.position = newKVP.Key;
-
-                // Change new kvp.
+                // Change this position's kvp value to this square. 
                 _randomColor.CoordinatesAndSquares[newKVP.Key] = _transform.gameObject;
+
+                // Set this square here. 
+                _transform.position = newKVP.Key;
             }
         }
-        // Else if the square is further than one square width from the edges, destroy it. 
+        // Else if you release LMB further than one square width away from the edge...
         else
         {
-            _randomColor.CoordinatesAndSquares[transform.position] = null;
-            Destroy(gameObject);
+            Destroy(_transform.gameObject);
         }
-
     }
 
     private void Update()
@@ -102,7 +103,7 @@ public class SwitchColors : MonoBehaviour
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out raycastHit, 100f))
             {
-                if (raycastHit.transform == _transform)
+                if (raycastHit.transform == transform)
                 {
                     OnHoldDownLMB();
                 }

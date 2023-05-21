@@ -12,7 +12,7 @@ public class RandomColor : MonoBehaviour
 	[SerializeField, Header("Layout")]
 	private float _lineThickness = 0.25f;
 	[SerializeField]
-	private float _squareSize = 1f;
+	private float _squareSize = 1.5f;
 	[SerializeField]
 	private int _numberOfSquaresToPaint = 25;
 	[SerializeField]
@@ -20,6 +20,7 @@ public class RandomColor : MonoBehaviour
 
 	private List<GameObject> _squares = new();
 	public Dictionary<Vector2, GameObject> CoordinatesAndSquares { get; set; }
+	public float SquareSize { get { return _squareSize; } set { _squareSize = value; } }
 
 	private void Awake()
     {
