@@ -17,10 +17,10 @@ public class RandomColor : MonoBehaviour
 	private float _squareSize = 1.5f;
 	[SerializeField]
 	private int _numberOfSquaresToPaint = 25;
-	[SerializeField]
-	private GameObject _squarePrefab;
 
 	[SerializeField, Header("Dont Worry About These")]
+	private GameObject _squarePrefab;
+	[SerializeField]
 	private GameObject _colorButtonPrefab;
 	[SerializeField]
 	private Transform _colorButtonsParent;
