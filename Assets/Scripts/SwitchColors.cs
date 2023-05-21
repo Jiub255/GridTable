@@ -13,25 +13,6 @@ public class SwitchColors : MonoBehaviour
     private SpriteRenderer _spriteRenderer;
     private RandomColor _randomColor;
 
-/*    private void OnEnable()
-    {
-        RandomColor.OnCoordinatesMade += CopyCoordinateList;
-    }
-
-    private void OnDisable()
-    {
-        RandomColor.OnCoordinatesMade -= CopyCoordinateList;
-    }
-
-    private void CopyCoordinateList(Dictionary<Vector2, GameObject> coordinateAndSquares)
-    {
-        _coordinateAndSquares.Clear();
-        foreach (KeyValuePair<Vector2, GameObject> coordinateAndSquare in coordinateAndSquares)
-        {
-            _coordinateAndSquares.Add(coordinateAndSquare.Key, coordinateAndSquare.Value);
-        }
-    }*/
-
     private void Start()
     {
         _transform = transform;
@@ -64,8 +45,6 @@ public class SwitchColors : MonoBehaviour
             }
         }
 
-        Debug.Log($"New kvp: ({newKVP.Key}, {newKVP.Value}");
-
         // If the nearest coordinate has a square on it... 
         if (newKVP.Value != null)
         {
@@ -81,14 +60,11 @@ public class SwitchColors : MonoBehaviour
             // Change new kvp.
             _randomColor.CoordinatesAndSquares[newKVP.Key] = _transform.gameObject;
         }
-        // TODO - This is giving an extra non null value in the dictionary each time you switch a square with an empty tile. 
+        // Else if the nearest coordinate is empty... 
         else
         {
-            // TODO - Not getting set to null here?
-            Debug.Log($"Before value of original kvp: {_randomColor.CoordinatesAndSquares[_originalPositionOfDraggedSquare]}");
             // Change old kvp. 
             _randomColor.CoordinatesAndSquares[_originalPositionOfDraggedSquare] = null;
-            Debug.Log($"After value of original kvp: {_randomColor.CoordinatesAndSquares[_originalPositionOfDraggedSquare]}");
 
             // Move old square to new one's position (dictionary is unchanged). 
             _transform.position = newKVP.Key;
@@ -96,16 +72,6 @@ public class SwitchColors : MonoBehaviour
             // Change new kvp.
             _randomColor.CoordinatesAndSquares[newKVP.Key] = _transform.gameObject;
         }
-
-        int numberOfSquaresInDict = 0;
-        foreach (KeyValuePair<Vector2, GameObject> kvp in _randomColor.CoordinatesAndSquares)
-        {
-            if (kvp.Value != null)
-            {
-                numberOfSquaresInDict++;
-            }
-        }
-        Debug.Log($"Number of squares in dictionary after switch: {numberOfSquaresInDict}");
     }
 
     private void Update()

@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class RandomColor : MonoBehaviour
 {
-	//public static event Action<Dictionary<Vector2, GameObject>> OnCoordinatesMade;
-
 	[SerializeField, Header("Colors")]
 	private Color _backgroundColor;
 	[SerializeField]
@@ -61,7 +59,6 @@ public class RandomColor : MonoBehaviour
 			}
 		}
 
-
 		// Randomly color squares
 		if (_numberOfSquaresToPaint > CoordinatesAndSquares.Count)
 		{
@@ -78,23 +75,25 @@ public class RandomColor : MonoBehaviour
             }
         }
 
+		// Place and paint the squares. 
 		for (int i = 0; i < _numberOfSquaresToPaint; i++)
 		{
-
 			// Put square at random coordinate. 
 			int randomCoordinateInt = UnityEngine.Random.Range(0, untakenSpots.Count);
 			Vector2 key = untakenSpots[randomCoordinateInt];
 			GameObject square = Instantiate(_squarePrefab, key, Quaternion.identity);
+
+			// Remove coordinate from list so you don't choose it again. 
+			untakenSpots.RemoveAt(randomCoordinateInt);
+
 			// Update dictionary. 
 			CoordinatesAndSquares[key] = square;
 
 			// Scale square. 
 			square.transform.localScale = new Vector3(_squareSize, _squareSize, 1f);
+
 			// Add to squares list to destroy them on refresh. 
 			_squares.Add(square);
-
-			// Remove coordinate from list so you don't choose it again. 
-			untakenSpots.RemoveAt(randomCoordinateInt);
 
 			// Randomly color square. 
 			int totalProbability = 0;
@@ -105,30 +104,17 @@ public class RandomColor : MonoBehaviour
 			int randomColorInt = UnityEngine.Random.Range(0, totalProbability);
 			int cumulativeProbability = 0;
 			Color color = new Color();
-			foreach (ColorAndRelativeFrequency colorAndRelativeFrequency1 in _colors)
+			foreach (ColorAndRelativeFrequency colorAndRelativeFrequency in _colors)
 			{
-				cumulativeProbability += colorAndRelativeFrequency1.RelativeFrequency;
+				cumulativeProbability += colorAndRelativeFrequency.RelativeFrequency;
 				if (randomColorInt < cumulativeProbability)
 				{
-					color = colorAndRelativeFrequency1.Color;
+					color = colorAndRelativeFrequency.Color;
 					break;
 				}
 			}
 			square.GetComponent<SpriteRenderer>().color = color;
 		}
-
-		// Send list of coordinates to SwitchColor scripts on the squares. 
-		//OnCoordinatesMade?.Invoke(CoordinatesAndSquares);
-
-		int numberOfSquaresInDict = 0;
-		foreach (KeyValuePair<Vector2, GameObject> kvp in CoordinatesAndSquares)
-        {
-			if (kvp.Value != null)
-            {
-				numberOfSquaresInDict++;
-            }
-        }
-		Debug.Log($"Number of squares in dictionary after refresh: {numberOfSquaresInDict}");
 	}
 }
 
@@ -138,17 +124,4 @@ public class ColorAndRelativeFrequency
 	public string Name;
 	public Color Color;
 	public int RelativeFrequency;
-}
-
-[Serializable]
-public class CoordinateAndSquare
-{
-	public Vector2 Coordinate;
-	public GameObject Square;
-
-	public CoordinateAndSquare(Vector2 coordinate, GameObject square)
-    {
-		Coordinate = coordinate;
-		Square = square;
-    }
 }
