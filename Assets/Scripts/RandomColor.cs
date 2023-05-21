@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class RandomColor : MonoBehaviour
 {
+	public static event Action<int, int> OnFrequencyChanged;
+
 	[SerializeField, Header("Colors")]
 	private Color _backgroundColor;
 	[SerializeField]
@@ -18,14 +20,54 @@ public class RandomColor : MonoBehaviour
 	[SerializeField]
 	private GameObject _squarePrefab;
 
+	[SerializeField, Header("Dont Worry About These")]
+	private GameObject _colorButtonPrefab;
+	[SerializeField]
+	private Transform _colorButtonsParent;
+
 	private List<GameObject> _squares = new();
 	public Dictionary<Vector2, GameObject> CoordinatesAndSquares { get; set; }
 	public float SquareSize { get { return _squareSize; } set { _squareSize = value; } }
 
+	public void RaiseRelativeFrequency(int index)
+    {
+		_colors[index].RelativeFrequency++;
+		OnFrequencyChanged?.Invoke(index, _colors[index].RelativeFrequency);
+    }
+
+	public void LowerRelativeFrequency(int index)
+    {
+		_colors[index].RelativeFrequency--;
+		if (_colors[index].RelativeFrequency < 0)
+        {
+			_colors[index].RelativeFrequency = 0;
+        }
+		OnFrequencyChanged?.Invoke(index, _colors[index].RelativeFrequency);
+	}
+
 	private void Awake()
     {
 		DrawGrid();
+		SetupColorButtons();
 	}
+
+	private void SetupColorButtons()
+    {
+		foreach (Transform child in _colorButtonsParent)
+        {
+			Destroy(child.gameObject);
+        }
+
+        for (int i = 0; i < _colors.Count; i++)
+        {
+			GameObject colorButton = Instantiate(_colorButtonPrefab, _colorButtonsParent);
+			ColorsButton colorsButton = colorButton.GetComponent<ColorsButton>();
+			colorsButton.RandomColor = this;
+			colorsButton.Index = i;
+			colorsButton.RelativeFrequencyText.text = _colors[i].RelativeFrequency.ToString();
+			colorsButton.ButtonImage.color = _colors[i].Color;
+        }
+    }
 
 	public void DrawGrid()
     {

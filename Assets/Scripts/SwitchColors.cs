@@ -33,6 +33,7 @@ public class SwitchColors : MonoBehaviour
         _dragging = false;
         _spriteRenderer.sortingOrder = 1;
 
+        // Find the closest coordinate in the dictionary. 
         float distance = float.MaxValue;
         KeyValuePair<Vector2,GameObject> newKVP = new();
         foreach (KeyValuePair<Vector2, GameObject> kvp in _randomColor.CoordinatesAndSquares)
