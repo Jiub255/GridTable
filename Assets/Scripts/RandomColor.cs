@@ -29,6 +29,11 @@ public class RandomColor : MonoBehaviour
 	public Dictionary<Vector2, GameObject> CoordinatesAndSquares { get; set; }
 	public float SquareSize { get { return _squareSize; } set { _squareSize = value; } }
 
+	public void AddToSquaresList(GameObject square)
+    {
+		_squares.Add(square);
+    }
+
 	public void RaiseRelativeFrequency(int index)
     {
 		_colors[index].RelativeFrequency++;

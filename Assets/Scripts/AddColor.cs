@@ -11,7 +11,6 @@ public class AddColor : MonoBehaviour
     private bool _dragging = false;
 
     private Camera _camera;
-    //private SpriteRenderer _spriteRenderer;
     private Image _image;
     private RandomColor _randomColor;
 
@@ -76,13 +75,16 @@ public class AddColor : MonoBehaviour
                 newKVP.Value.GetComponent<SpriteRenderer>().color = _image.color;
 
                 // Destroy this square. No need to do anything to the dictionary. 
-                Destroy(_cloneTransform.gameObject);
+                Destroy(_clone);
             }
             // But if the nearest coordinate is empty... 
             else
             {
                 // Change this position's kvp value to this square. 
-                _randomColor.CoordinatesAndSquares[newKVP.Key] = _cloneTransform.gameObject;
+                _randomColor.CoordinatesAndSquares[newKVP.Key] = _clone;
+
+                // Add square to RandomColor's squares list.
+                _randomColor.AddToSquaresList(_clone);
 
                 // Set this square here. 
                 _cloneTransform.position = newKVP.Key;
@@ -108,17 +110,5 @@ public class AddColor : MonoBehaviour
                 OnReleaseLMB();
             }
         }
-/*        else if (Input.GetMouseButtonDown(0))
-        {
-            RaycastHit raycastHit;
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out raycastHit, 100f))
-            {
-                if (raycastHit.transform == transform)
-                {
-                    OnHoldDownLMB();
-                }
-            }
-        }*/
     }
 }
